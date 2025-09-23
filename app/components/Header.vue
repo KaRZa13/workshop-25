@@ -9,14 +9,27 @@
     <template #right>
       <UColorModeButton />
 
-      <UTooltip text="Open on GitHub" :kbds="['meta', 'G']">
+      <!-- Afficher les informations utilisateur si connecté -->
+      <div v-if="isAuthenticated" class="flex items-center gap-2">
+        <UTooltip :text="user?.address">
+          <UBadge color="success" variant="soft" class="hidden sm:inline-flex">
+            {{ user?.address?.slice(0, 6) }}...{{ user?.address?.slice(-4) }}
+          </UBadge>
+        </UTooltip>
+        
+        <UDropdown :items="userMenuItems">
+          <UButton color="neutral" variant="ghost" icon="i-lucide-user-round" />
+        </UDropdown>
+      </div>
+      
+      <!-- Bouton de connexion si non connecté -->
+      <UTooltip v-else text="Sign Up / Sign In">
         <UButton
           color="neutral"
           variant="ghost"
-          to="https://github.com/KaRZa13/workshop-25"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
+          to="/login"
+          icon="i-lucide-user-round"
+          aria-label="Login"
         />
       </UTooltip>
     </template>
@@ -27,14 +40,40 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-const items = computed<NavigationMenuItem[]>(() => [
-  {
-    label: 'Home',
-    to: '/'
-  },
-  {
-    label: 'Messages',
-    to: '/messages'
+const { user, isAuthenticated, logout } = useAuth()
+
+const items = computed<NavigationMenuItem[]>(() => {
+  const baseItems = [
+    {
+      label: 'Home',
+      to: '/'
+    }
+  ]
+  
+  // Ajouter "Messages" seulement si l'utilisateur est connecté
+  if (isAuthenticated.value) {
+    baseItems.push({
+      label: 'Messages',
+      to: '/messages'
+    })
   }
+  
+  return baseItems
+})
+
+const userMenuItems = computed(() => [
+  [{
+    label: 'Messages',
+    icon: 'i-lucide-message-circle',
+    to: '/messages'
+  }],
+  [{
+    label: 'Déconnexion',
+    icon: 'i-lucide-log-out',
+    click: async () => {
+      logout()
+      await navigateTo('/login')
+    }
+  }]
 ])
 </script>

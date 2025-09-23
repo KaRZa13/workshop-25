@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col justify-center items-center gap-4 py-4">
     <UFooterColumns :columns="columns">
-  
+
       <template #right>
         <UFormField name="email" label="Subscribe to our Outernet newsletter" size="lg">
           <UInput type="email" class="w-full">
@@ -93,3 +93,4 @@ const columns: FooterColumn[] = [
   }
 ]
 </script>
+
