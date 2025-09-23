@@ -17,7 +17,7 @@
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
-          />
+        />
       </UTooltip>
     </template>
 
