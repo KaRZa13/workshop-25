@@ -11,11 +11,13 @@ export default defineNuxtPlugin(async () => {
   const { data: { session } } = await supabase.auth.getSession()
 
   if (!session) {
-    // Si plus de session Supabase → forcer logout
-    logout()
-    if (window.location.pathname !== '/login') {
-      navigateTo('/login')
+    // Si plus de session Supabase → forcer logout seulement si on était connecté
+    const { user } = useAuth()
+    if (user.value) {
+      logout()
     }
+    
+    // Redirection supprimée - l'utilisateur peut rester sur la page courante
   }
 
   // 🎧 Gestion des events MetaMask
@@ -23,13 +25,13 @@ export default defineNuxtPlugin(async () => {
     window.ethereum.on('accountsChanged', (accounts: string[]) => {
       if (accounts.length === 0) {
         logout()
-        navigateTo('/login')
+        // Redirection supprimée - l'utilisateur reste sur la page courante
       } else {
         // Si l'adresse change → forcer logout aussi
         const { user } = useAuth()
         if (user.value && accounts[0]?.toLowerCase() !== user.value.address.toLowerCase()) {
           logout()
-          navigateTo('/login')
+          // Redirection supprimée - l'utilisateur reste sur la page courante
         }
       }
     })

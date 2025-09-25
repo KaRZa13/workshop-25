@@ -107,7 +107,7 @@ export const useAuth = () => {
         localStorage.removeItem('auth_user')
       }
       
-      await navigateTo('/login')
+      // Pas de redirection automatique - laisse l'utilisateur naviguer librement
     } catch (error) {
       console.error('Logout error:', error)
     }

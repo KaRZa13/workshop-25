@@ -35,6 +35,7 @@
     <UMain>
       <NuxtLayout>
         <NuxtPage />
+        
       </NuxtLayout>
     </UMain>
   </UApp>
@@ -44,6 +45,8 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const { user, isAuthenticated, logout } = useAuth()
+const showUsernameModal = ref(false)
+const currentUserId = ref('')
 
 const items = computed<NavigationMenuItem[]>(() => {
   const baseItems = [
@@ -75,10 +78,12 @@ const userMenuItems = computed(() => [
     icon: 'i-lucide-log-out',
     click: async () => {
       logout()
-      await navigateTo('/login')
+      // Pas de redirection automatique - laisse l'utilisateur où il est
     }
   }]
 ])
+
+
 </script>
 
 <style>

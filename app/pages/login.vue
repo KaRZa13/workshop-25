@@ -8,8 +8,6 @@
         :providers="providers"
       />
     </UPageCard>
-
-    <!-- Modal pour choisir le username -->
     <UsernameModal
       v-model="showUsernameModal"
       :user-id="currentUserId"
@@ -21,13 +19,7 @@
 </template>
 
 <script setup lang="ts">
-const { login, updateUsername } = useAuth()
-
-// Rediriger si déjà authentifié
-const { isAuthenticated } = useAuth()
-if (isAuthenticated.value) {
-  await navigateTo('/messages')
-}
+const { login, updateUsername, isAuthenticated } = useAuth()
 
 // État pour la modal username
 const showUsernameModal = ref(false)
@@ -50,16 +42,16 @@ const providers = [{
       const result = await login()
       console.log('📊 Résultat de la connexion:', result)
       
-      if (result && result.needsUsername) {
+      if (result.isNewUser && result.needsUsername) {
         // L'utilisateur doit choisir un username
         console.log('👤 Username requis pour:', result.user.id)
         currentUserId.value = result.user.id
-        await nextTick() // Attendre que le DOM soit mis à jour
+        await nextTick() 
         showUsernameModal.value = true
       } else {
         // Rediriger vers les messages après connexion réussie
         console.log('✅ Redirection vers messages')
-        await navigateTo('/messages')
+        navigateTo('/messages')
       }
     } catch (error) {
       // L'erreur est déjà gérée dans le composable

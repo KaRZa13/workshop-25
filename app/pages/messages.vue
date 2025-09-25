@@ -88,6 +88,6 @@ const { user, logout } = useAuth()
 
 const handleLogout = async () => {
   logout()
-  await navigateTo('/login')
+  // Redirection supprimée - l'utilisateur reste sur la page courante
 }
 </script>

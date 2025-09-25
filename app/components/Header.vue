@@ -72,7 +72,7 @@ const userMenuItems = computed(() => [
     icon: 'i-lucide-log-out',
     click: async () => {
       logout()
-      await navigateTo('/login')
+      // Redirection supprimée - l'utilisateur reste sur la page courante
     }
   }]
 ])

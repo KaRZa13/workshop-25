@@ -1,78 +1,81 @@
 <template>
   <UModal v-model="isOpen" :prevent-close="true">
-    <UCard>
-      <template #header>
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-user" class="text-primary" />
-          <h3 class="text-lg font-semibold">Choisir votre nom d'utilisateur</h3>
-        </div>
-      </template>
-
-      <div class="space-y-4">
-        <p class="text-gray-600">
-          Bienvenue ! Vous devez choisir un nom d'utilisateur unique pour continuer.
-        </p>
-
-        <UFormGroup 
-          label="Nom d'utilisateur" 
-          :error="usernameError"
-          help="3-20 caractères, lettres, chiffres, tirets et underscores uniquement"
-        >
-          <UInput
-            v-model="username"
-            placeholder="votre-username"
-            :loading="checkingAvailability"
-            :color="usernameStatus === 'available' ? 'success' : usernameError ? 'error' : 'primary'"
-            autocomplete="off"
-            spellcheck="false"
-            @input="onUsernameInput"
-          />
-          
-          <template #trailing>
-            <UIcon 
-              v-if="usernameStatus === 'available'" 
-              name="i-lucide-check-circle" 
-              class="text-green-500" 
-            />
-            <UIcon 
-              v-else-if="usernameError" 
-              name="i-lucide-x-circle" 
-              class="text-red-500" 
-            />
-            <UIcon 
-              v-else-if="checkingAvailability" 
-              name="i-lucide-loader" 
-              class="animate-spin text-gray-400" 
-            />
-          </template>
-        </UFormGroup>
-
-        <div v-if="usernameStatus === 'available'" class="text-sm text-green-600 flex items-center gap-1">
-          <UIcon name="i-lucide-check" />
-          Nom d'utilisateur disponible !
-        </div>
-      </div>
-
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <UButton 
-            variant="outline" 
-            color="neutral" 
-            @click="logout"
-            :disabled="submitting"
+    
+    <template #content>
+      <UCard>
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-user" class="text-primary" />
+            <h3 class="text-lg font-semibold">Choisir votre nom d'utilisateur</h3>
+          </div>
+        </template>
+  
+        <div class="space-y-4">
+          <p class="text-gray-600">
+            Bienvenue ! Vous devez choisir un nom d'utilisateur unique pour continuer.
+          </p>
+  
+          <UFormGroup 
+            label="Nom d'utilisateur" 
+            :error="usernameError"
+            help="3-20 caractères, lettres, chiffres, tirets et underscores uniquement"
           >
-            Annuler
-          </UButton>
-          <UButton 
-            @click="submitUsername" 
-            :disabled="!canSubmit"
-            :loading="submitting"
-          >
-            Confirmer
-          </UButton>
+            <UInput
+              v-model="username"
+              placeholder="votre-username"
+              :loading="checkingAvailability"
+              :color="usernameStatus === 'available' ? 'success' : usernameError ? 'error' : 'primary'"
+              autocomplete="off"
+              spellcheck="false"
+              @input="onUsernameInput"
+            />
+            
+            <template #trailing>
+              <UIcon 
+                v-if="usernameStatus === 'available'" 
+                name="i-lucide-check-circle" 
+                class="text-green-500" 
+              />
+              <UIcon 
+                v-else-if="usernameError" 
+                name="i-lucide-x-circle" 
+                class="text-red-500" 
+              />
+              <UIcon 
+                v-else-if="checkingAvailability" 
+                name="i-lucide-loader" 
+                class="animate-spin text-gray-400" 
+              />
+            </template>
+          </UFormGroup>
+  
+          <div v-if="usernameStatus === 'available'" class="text-sm text-green-600 flex items-center gap-1">
+            <UIcon name="i-lucide-check" />
+            Nom d'utilisateur disponible !
+          </div>
         </div>
-      </template>
-    </UCard>
+  
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton 
+              variant="outline" 
+              color="neutral" 
+              @click="logout"
+              :disabled="submitting"
+            >
+              Annuler
+            </UButton>
+            <UButton 
+              @click="submitUsername" 
+              :disabled="!canSubmit"
+              :loading="submitting"
+            >
+              Confirmer
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </template>
   </UModal>
 </template>
 
@@ -109,9 +112,9 @@ const isOpen = computed({
 
 const canSubmit = computed(() => {
   return username.value.length >= 3 && 
-         usernameStatus.value === 'available' && 
-         !checkingAvailability.value && 
-         !submitting.value
+    usernameStatus.value === 'available' && 
+    !checkingAvailability.value && 
+    !submitting.value
 })
 
 // Méthodes
