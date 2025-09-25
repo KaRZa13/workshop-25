@@ -15,7 +15,7 @@
         <div v-if="isAuthenticated" class="flex items-center gap-2">
           <UTooltip :text="user?.address">
             <UBadge color="success" variant="soft" class="hidden sm:inline-flex">
-              {{ user?.address?.slice(0, 6) }}...{{ user?.address?.slice(-4) }}
+              {{ user?.username ? user.username : (user?.address ? user.address.slice(0, 6) + '...' + user.address.slice(-4) : 'No Address') }}
             </UBadge>
           </UTooltip>
 
@@ -137,7 +137,6 @@ const { user, isAuthenticated, logout, updateUsername, refreshUserData } = useAu
 const showUsernameModal = ref(false)
 const currentUserId = ref('')
 
-// Username modal logic
 const username = ref('')
 const usernameError = ref('')
 const usernameStatus = ref<'idle' | 'checking' | 'available' | 'taken'>('idle')
@@ -145,13 +144,11 @@ const checkingAvailability = ref(false)
 const submitting = ref(false)
 let checkTimeout: NodeJS.Timeout | null = null
 
-// Alias for modal binding
 const isOpen = computed({
   get: () => showUsernameModal.value,
   set: (value) => showUsernameModal.value = value
 })
 
-// Computed properties for username validation
 const canSubmit = computed(() => {
   return username.value.length >= 3 && 
     usernameStatus.value === 'available' && 
@@ -159,7 +156,6 @@ const canSubmit = computed(() => {
     !submitting.value
 })
 
-// Username validation methods
 const validateUsername = (value: string): boolean => {
   if (value.length < 3) {
     usernameError.value = 'Le nom d\'utilisateur doit contenir au moins 3 caractères'
@@ -213,16 +209,13 @@ const checkUsernameAvailability = async (value: string) => {
 }
 
 const onUsernameInput = () => {
-  // Réinitialiser l'état
   usernameStatus.value = 'idle'
   usernameError.value = ''
   
-  // Annuler le timeout précédent
   if (checkTimeout) {
     clearTimeout(checkTimeout)
   }
   
-  // Vérifier après 500ms de pause dans la saisie
   if (username.value.length >= 3) {
     checkTimeout = setTimeout(() => {
       checkUsernameAvailability(username.value)
@@ -249,10 +242,7 @@ const submitUsername = async () => {
 
     if (response.success) {
       showUsernameModal.value = false
-      // Rafraîchir les données utilisateur
       await refreshUserData()
-      
-      // Réinitialiser les états
       username.value = ''
       usernameError.value = ''
       usernameStatus.value = 'idle'
@@ -266,7 +256,6 @@ const submitUsername = async () => {
   }
 }
 
-// Fonction pour vérifier et afficher la modal si nécessaire
 const checkForUsernameModal = () => {
   
   if (isAuthenticated.value && user.value && !user.value.username && process.client) {
@@ -285,7 +274,6 @@ const checkForUsernameModal = () => {
   }
 }
 
-// changements d'état d'authentification
 watch([isAuthenticated, user], ([newIsAuth, newUser], [oldIsAuth, oldUser]) => {
   
   if (newIsAuth && newUser && !newUser.username && process.client) {
@@ -321,7 +309,6 @@ const items = computed<NavigationMenuItem[]>(() => {
     }
   ]
   
-  // Ajouter "Messages" seulement si l'utilisateur est connecté
   if (isAuthenticated.value) {
     baseItems.push({
       label: 'Messages',
@@ -343,7 +330,6 @@ const userMenuItems = computed(() => [
     icon: 'i-lucide-log-out',
     click: async () => {
       logout()
-      // Pas de redirection automatique - laisse l'utilisateur où il est
     }
   }]
 ])
