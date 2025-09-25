@@ -8,30 +8,11 @@
         :providers="providers"
       />
     </UPageCard>
-    <UsernameModal
-      v-model="showUsernameModal"
-      :user-id="currentUserId"
-      @username-set="onUsernameSet"
-      @cancel="onCancel"
-      v-if="currentUserId"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-const { login, updateUsername, isAuthenticated } = useAuth()
-
-// État pour la modal username
-const showUsernameModal = ref(false)
-const currentUserId = ref('')
-
-// S'assurer que la modal est fermée au démarrage (une seule fois)
-onMounted(() => {
-  if (process.client) {
-    showUsernameModal.value = false
-    currentUserId.value = ''
-  }
-})
+const { login } = useAuth()
 
 const providers = [{
   label: 'Ethereum',
@@ -42,43 +23,15 @@ const providers = [{
       const result = await login()
       console.log('📊 Résultat de la connexion:', result)
       
-      if (result.isNewUser && result.needsUsername) {
-        // L'utilisateur doit choisir un username
-        console.log('👤 Username requis pour:', result.user.id)
-        currentUserId.value = result.user.id
-        await nextTick() 
-        showUsernameModal.value = true
-      } else {
-        // Rediriger vers les messages après connexion réussie
-        console.log('✅ Redirection vers messages')
-        navigateTo('/messages')
-      }
+      // Toujours rediriger vers les messages après connexion
+      // La modal pour le username sera gérée automatiquement par app.vue si nécessaire
+      console.log('✅ Redirection vers messages')
+      navigateTo('/messages')
+      
     } catch (error) {
       // L'erreur est déjà gérée dans le composable
       console.error('❌ Login failed:', error)
     }
   }
 }]
-
-// Gérer la confirmation du username
-const onUsernameSet = async (username: string) => {
-  try {
-    console.log('✅ Username sélectionné:', username)
-    await updateUsername(username)
-    showUsernameModal.value = false
-    currentUserId.value = ''
-    console.log('🎉 Redirection vers messages avec username')
-    await navigateTo('/messages')
-  } catch (error) {
-    console.error('❌ Failed to set username:', error)
-  }
-}
-
-// Gérer l'annulation (déconnexion)
-const onCancel = () => {
-  console.log('🚫 Annulation de la sélection username')
-  showUsernameModal.value = false
-  currentUserId.value = ''
-  // L'utilisateur sera déconnecté par le composant modal
-}
 </script>

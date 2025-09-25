@@ -131,16 +131,19 @@ export const useAuth = () => {
       })
 
       if (response.success) {
-        // Mettre à jour l'état local
+        // Mettre à jour l'état local avec les données retournées par la DB
         user.value = {
           ...user.value,
           username: response.user.username
         }
 
-        // Mettre à jour le localStorage
+        // Synchroniser avec le localStorage
         if (process.client) {
           localStorage.setItem('auth_user', JSON.stringify(user.value))
         }
+
+        // Optionnel : Rafraîchir les données depuis la DB pour être sûr
+        await refreshUserData()
 
         return response.user
       } else {
@@ -163,7 +166,26 @@ export const useAuth = () => {
         // Vérifier que l'utilisateur a toujours son wallet connecté
         const { isMetaMaskInstalled } = useEthereum()
         if (isMetaMaskInstalled()) {
-          user.value = parsedUser
+          // Récupérer les données les plus récentes depuis la base de données
+          try {
+            const response = await $fetch<{
+              success: boolean
+              user: User
+            }>(`/api/auth/me?userId=${parsedUser.id}`)
+            
+            if (response.success) {
+              // Utiliser les données fraîches de la DB
+              user.value = response.user
+              // Mettre à jour le localStorage avec les données actuelles
+              localStorage.setItem('auth_user', JSON.stringify(response.user))
+            } else {
+              throw new Error('Failed to fetch user data')
+            }
+          } catch (dbError) {
+            console.warn('Could not fetch fresh user data, using cached:', dbError)
+            // En cas d'erreur DB, utiliser les données du cache comme fallback
+            user.value = parsedUser
+          }
         } else {
           // Si MetaMask n'est plus disponible, nettoyer la session
           localStorage.removeItem('auth_user')
@@ -175,12 +197,36 @@ export const useAuth = () => {
     }
   }
 
+  const refreshUserData = async () => {
+    if (!user.value?.id) return
+
+    try {
+      const response = await $fetch<{
+        success: boolean
+        user: User
+      }>(`/api/auth/me?userId=${user.value.id}`)
+      
+      if (response.success) {
+        // Mettre à jour avec les données fraîches de la DB
+        user.value = response.user
+        
+        // Synchroniser avec le localStorage
+        if (process.client) {
+          localStorage.setItem('auth_user', JSON.stringify(response.user))
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error)
+    }
+  }
+
   return {
     user: readonly(user),
     isAuthenticated,
     login,
     logout,
     updateUsername,
-    restoreSession
+    restoreSession,
+    refreshUserData
   }
 }

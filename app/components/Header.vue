@@ -13,7 +13,7 @@
       <div v-if="isAuthenticated" class="flex items-center gap-2">
         <UTooltip :text="user?.address">
           <UBadge color="success" variant="soft" class="hidden sm:inline-flex">
-            {{ user?.address?.slice(0, 6) }}...{{ user?.address?.slice(-4) }}
+            {{ user?.username ? user.username : user?.address?.slice(0, 6) }}
           </UBadge>
         </UTooltip>
         
